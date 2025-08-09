@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>มจท16 คำร้องขอโอนย้ายสาขาวิชาต่างคณะ</title>
+  <style>
+    /* รีเซ็ต */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    form {
+      max-width: 700px;
+      background-color: white;
+      padding: 30px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    fieldset {
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    legend {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #1a237e;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    button {
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+
+    #formStatus {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    input:invalid, select:invalid, textarea:invalid {
+      border-color: #f44336;
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+
+      form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>มจท16 - คำร้องขอโอนย้ายสาขาวิชาต่างคณะ</h1>
+
+  <form id="transferForm" novalidate>
+    <!-- ข้อมูลส่วนตัว -->
+    <fieldset>
+      <legend>ข้อมูลส่วนตัว</legend>
+
+      <label for="studentId">รหัสนักศึกษา:</label>
+      <input type="text" id="studentId" name="studentId" pattern="\d{10}" required>
+      <span class="error" id="studentIdError">กรุณากรอกรหัสนักศึกษา 10 หลัก</span>
+
+      <label for="fullName">ชื่อ-นามสกุล:</label>
+      <input type="text" id="fullName" name="fullName" required>
+      <span class="error" id="fullNameError">กรุณากรอกชื่อ-นามสกุล</span>
+
+      <label for="currentFaculty">คณะปัจจุบัน:</label>
+      <select id="currentFaculty" name="currentFaculty" required>
+        <option value="">-- เลือกคณะ --</option>
+        <option value="engineering">คณะวิศวกรรมศาสตร์</option>
+        <option value="science">คณะวิทยาศาสตร์</option>
+        <option value="business">คณะบริหารธุรกิจ</option>
+      </select>
+      <span class="error" id="currentFacultyError">กรุณาเลือกคณะปัจจุบัน</span>
+    </fieldset>
+
+    <!-- ข้อมูลการโอนย้าย -->
+    <fieldset>
+      <legend>ข้อมูลการโอนย้าย</legend>
+
+      <label for="targetFaculty">คณะที่ต้องการโอน:</label>
+      <select id="targetFaculty" name="targetFaculty" required>
+        <option value="">-- เลือกคณะ --</option>
+        <option value="law">คณะนิติศาสตร์</option>
+        <option value="medicine">คณะแพทยศาสตร์</option>
+        <option value="architecture">คณะสถาปัตยกรรมศาสตร์</option>
+      </select>
+      <span class="error" id="targetFacultyError">กรุณาเลือกคณะที่ต้องการโอน</span>
+
+      <label for="reason">เหตุผลขอโอนย้าย:</label>
+      <textarea id="reason" name="reason" minlength="20" required></textarea>
+      <span class="error" id="reasonError">กรุณากรอกเหตุผลอย่างน้อย 20 ตัวอักษร</span>
+
+      <label for="transcript">ส่งสำเนาผลการเรียน:</label>
+      <input type="file" id="transcript" name="transcript" accept=".pdf,.doc,.docx" required>
+      <span class="error" id="transcriptError">กรุณาอัปโหลดไฟล์ PDF หรือ Word</span>
+    </fieldset>
+
+    <button type="submit">ส่งคำร้อง</button>
+    <div id="formStatus"></div>
+  </form>
+
+  <script>
+    document.getElementById('transferForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let isValid = true;
+
+      // Clear previous error
+      document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
+
+      const studentId = document.getElementById('studentId');
+      if (!studentId.checkValidity()) {
+        document.getElementById('studentIdError').classList.add('show');
+        isValid = false;
+      }
+
+      const fullName = document.getElementById('fullName');
+      if (!fullName.value.trim()) {
+        document.getElementById('fullNameError').classList.add('show');
+        isValid = false;
+      }
+
+      const currentFaculty = document.getElementById('currentFaculty');
+      if (currentFaculty.value === '') {
+        document.getElementById('currentFacultyError').classList.add('show');
+        isValid = false;
+      }
+
+      const targetFaculty = document.getElementById('targetFaculty');
+      if (targetFaculty.value === '') {
+        document.getElementById('targetFacultyError').classList.add('show');
+        isValid = false;
+      }
+
+      const reason = document.getElementById('reason');
+      if (reason.value.length < 20) {
+        document.getElementById('reasonError').classList.add('show');
+        isValid = false;
+      }
+
+      const transcript = document.getElementById('transcript');
+      if (!transcript.files.length) {
+        document.getElementById('transcriptError').classList.add('show');
+        isValid = false;
+      } else {
+        const file = transcript.files[0];
+        const validTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+
+        if (!validTypes.includes(file.type)) {
+          document.getElementById('transcriptError').textContent = 'ประเภทไฟล์ไม่ถูกต้อง';
+          document.getElementById('transcriptError').classList.add('show');
+          isValid = false;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          document.getElementById('transcriptError').textContent = 'ขนาดไฟล์เกิน 5MB';
+          document.getElementById('transcriptError').classList.add('show');
+          isValid = false;
+        }
+      }
+
+      if (isValid) {
+        document.getElementById('formStatus').textContent = 'ส่งคำร้องสำเร็จ!';
+        document.getElementById('formStatus').style.color = 'green';
+        this.reset();
+      } else {
+        document.getElementById('formStatus').textContent = '';
+      }
+    });
+  </script>
+</body>
+</html>
